@@ -12,9 +12,8 @@ import org.joda.time.DateTime
 import org.joda.time.format.ISODateTimeFormat.dateTimeParser
 import org.jsoup.nodes.{Document, Element}
 import org.slf4j.{Logger, LoggerFactory}
-
-import scala.collection.convert.Wrappers.JListWrapper
 import scala.collection.mutable
+import scala.jdk.CollectionConverters._
 import scala.math._
 import scala.util.Try
 
@@ -28,7 +27,7 @@ object ContentExtractor {
 
   def processTitle(rawTitle: String, canonical: Option[String]): String = {
     def normalize(str: String) =
-      Normalizer.normalize(str, Normalizer.Form.NFD).replaceAll("\\p{InCombiningDiacriticalMarks}+", "")
+      Normalizer.normalize(str, Normalizer.Form.NFD).replaceAll("\\p{InCo"+"mbiningDiacriticalMarks}+", "")
 
     canonical.flatMap(c => Try(new URL(c)).toOption).flatMap { url =>
       val names = url.getAuthority.split('.').init.filter(_.length > 2).filter(_ != "www")
@@ -129,7 +128,7 @@ object ContentExtractor {
   * also store on how high up the paragraphs are, comments are usually at the bottom and should get a lower score
   */
   def calculateBestNodeBasedOnClustering(document: Document, lang:String): Option[Element] = {
-    implicit val doc = document.clone
+    implicit val doc: Document = document.clone
 
     val nodesToCheck = byTag("p") ++ byTag("td") ++ byTag("pre") ++ byTag("strong") ++ byTag("li") ++ byTag("code")
 
@@ -293,8 +292,8 @@ object ContentExtractor {
   * remove any divs that looks like non-content, clusters of links, or paras with no gusto
   */
   def postExtractionCleanup(targetNode: Element, lang: String): Element = {
-    val node = addSiblings(targetNode, lang)
-    JListWrapper(node.children)
+    val node: Element = addSiblings(targetNode, lang)
+    node.children.asScala
       .filter(e => e.tagName != "p" || isHighLinkDensity(e))
       .filter(e => isHighLinkDensity(e) || isTableTagAndNoParagraphsExist(e) || !isNodeScoreThresholdMet(node, e))
       .foreach(remove)
@@ -328,7 +327,7 @@ object ContentExtractor {
     }
   }
 
-  private def walkSiblings[T](node: Element)(work: (Element) => T): Seq[T] = {
+  private def walkSiblings[T](node: Element)(work: Element => T): Seq[T] = {
     var currentSibling = node.previousElementSibling
     val b = mutable.Buffer[T]()
 
@@ -336,7 +335,7 @@ object ContentExtractor {
       b += work(currentSibling)
       currentSibling = currentSibling.previousElementSibling
     }
-    b
+    b.toSeq
   }
 
   private def addSiblings(topNode: Element, lang: String): Element = {
