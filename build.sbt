@@ -17,4 +17,8 @@ libraryDependencies += "org.joda" % "joda-convert" % "2.2.1"
 // https://mvnrepository.com/artifact/joda-time/joda-time
 libraryDependencies += "joda-time" % "joda-time" % "2.10.4"
 
+// https://mvnrepository.com/artifact/org.specs2/specs2-core
+libraryDependencies += "org.specs2" %% "specs2-core" % "4.8.0" % Test
+
+
 
