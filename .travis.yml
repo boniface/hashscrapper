@@ -1,0 +1,35 @@
+language: scala
+scala:
+   - 2.13.1
+script: "sbt clean coverage test it:test"
+after_success: "sbt coveralls"
+cache:
+  directories:
+   - ~/.ivy2
+   - ~/.sbt
+jobs:
+  include:
+    - stage: clean
+      name: clean
+      script: make deep_clean
+    - stage: test
+      name: compile
+      script: sbt compile
+    -
+      name: scalafmt
+      script: ./bin/scalafmt --test
+    -
+      name: mutators-test
+      script: make mutator_test
+      if: branch = master AND type = push AND NOT fork
+    -
+      name: plugin-test
+      script: make test_plugin
+    -
+      name: unit-test
+      script:
+        - make test_coverage test_coverage_report
+        - sbt coveralls
+    - stage: release
+      name: release
+      script: sbt ci-release

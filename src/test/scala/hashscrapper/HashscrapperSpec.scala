@@ -12,7 +12,7 @@ import hashscrapper.opengraph.OpenGraphData
 import org.joda.time.DateTime
 import org.specs2.mutable.Specification
 
-class GanderSpec extends Specification {
+class HashscrapperSpec extends Specification {
 
   def extract(url: String, charset: Charset = Charsets.UTF_8): Article = {
     val resource = getClass.getResourceAsStream("/" + url.stripPrefix("http://").replace('/', '_') + ".gz")
