@@ -22,7 +22,7 @@ object DocumentCleaner {
   private val queryNaughtyIDs = "[id~=(" + regExRemoveNodes + ")]"
   private val queryNaughtyClasses = "[class~=(" + regExRemoveNodes + ")]"
   private val queryNaughtyNames = "[name~=(" + regExRemoveNodes + ")]"
-
+// FIX THIS FIRST
   def clean(doc: Document): Document = {
     //TODO right now this solution mutates this document
     // it would be very nice to implement this with an immutable solution
