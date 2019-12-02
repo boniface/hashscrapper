@@ -3,7 +3,7 @@ package hashscrapper
 import java.util.regex.Pattern
 
 import hashscrapper.utils.JSoup._
-import org.jsoup.nodes.{Document, TextNode}
+import org.jsoup.nodes.{Document, Element, TextNode}
 
 object DocumentCleaner {
 
@@ -22,7 +22,8 @@ object DocumentCleaner {
   private val queryNaughtyIDs = "[id~=(" + regExRemoveNodes + ")]"
   private val queryNaughtyClasses = "[class~=(" + regExRemoveNodes + ")]"
   private val queryNaughtyNames = "[name~=(" + regExRemoveNodes + ")]"
-// FIX THIS FIRST
+
+  // FIX THIS FIRST
   def clean(doc: Document): Document = {
     //TODO right now this solution mutates this document
     // it would be very nice to implement this with an immutable solution
@@ -40,35 +41,45 @@ object DocumentCleaner {
   }
 
   /**
-  * replaces various tags with textnodes
-  */
-  private def cleanTextTags(implicit doc: Document): Unit =
-    (byTag("em") ++ byTag("strong") ++ byTag("b") ++ byTag("i") ++
-      byTag("strike") ++ byTag("del") ++ byTag("ins")).foreach { node =>
-      val tn = new TextNode(node.text, doc.baseUri)
-      node.replaceWith(tn)
-    }
-
-  private def removeScriptsAndStyles(implicit doc: Document): Unit =
-    (byTag("script") ++ byTag("style") ++ byTag("noscript")).foreach(remove)
-
-  private def cleanBadTags(implicit doc: Document): Unit =
-    (select(queryNaughtyIDs) ++ select(queryNaughtyClasses) ++ select(queryNaughtyNames)).foreach(remove)
-
-  /**
-   * removes nodes that may have a certain pattern that matches against a class or id tag
+   * replaces various tags with textnodes
    */
-  private def removeNodesViaRegEx(pattern: Pattern)(implicit doc: Document): Unit =
-    (byAttrRe("id", pattern) ++ byAttrRe("class", pattern)).foreach(remove)
+  private def cleanTextTags(implicit doc: Document): Unit = {
 
-  /**
-  * takes care of the situation where you have a span tag nested in a paragraph tag
-  * e.g. businessweek2.txt
-  */
-  private def cleanUpSpanTagsInParagraphs(implicit doc: Document): Unit =
-    byTag("span").filter(_.parent.nodeName == "p").foreach { node =>
+    val res: Seq[Element] = byTag("em") ++ byTag("strong") ++ byTag("b") ++ byTag("i") ++
+      byTag("strike") ++ byTag("del") ++ byTag("ins")
+
+    res.foreach { node =>
       val tn = new TextNode(node.text, doc.baseUri)
       node.replaceWith(tn)
     }
+
+  }
+
+
+private def removeScriptsAndStyles (implicit doc: Document): Unit =
+(byTag ("script") ++ byTag ("style") ++ byTag ("noscript") ).foreach (remove)
+
+private def cleanBadTags (implicit doc: Document): Unit =
+(select (queryNaughtyIDs) ++ select (queryNaughtyClasses) ++ select (queryNaughtyNames) ).foreach (remove)
+
+/**
+ * removes nodes that may have a certain pattern that matches against a class or id tag
+ */
+private def removeNodesViaRegEx (pattern: Pattern) (implicit doc: Document): Unit =
+(byAttrRe ("id", pattern) ++ byAttrRe ("class", pattern) ).foreach (remove)
+
+/**
+ * takes care of the situation where you have a span tag nested in a paragraph tag
+ * e.g. businessweek2.txt
+ */
+private def cleanUpSpanTagsInParagraphs (implicit doc: Document): Unit =
+byTag ("span").filter (_.parent.nodeName == "p").foreach {
+
+  import org.jsoup.nodes.Element
+
+  node =>
+  val tn = new TextNode (node.text, doc.baseUri)
+  node.replaceWith (tn)
+}
 
 }
