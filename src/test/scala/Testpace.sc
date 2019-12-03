@@ -1,13 +1,1 @@
-// Step 1
-trait Formatter[A] {
-  def fmt(a:A): String
-}
-
-// Step 2
-
-object instances{
-  implicit val float: Formatter[Float] ={
-    (a:Float) => s"$a f"
-  }
-}
-
+val list = List( ("1","Na","4"), ("1","3","4"), ("1","3","4"))
