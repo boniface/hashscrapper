@@ -1,9 +1,9 @@
 package hashscrapper
 
-import java.util.regex.Pattern
-
 import hashscrapper.utils.JSoup._
 import org.jsoup.nodes.{Document, Element, TextNode}
+
+import java.util.regex.Pattern
 
 object DocumentCleaner {
 
@@ -15,10 +15,18 @@ object DocumentCleaner {
    * this regex is used to remove undesirable nodes from our doc
    * indicate that something maybe isn't content but more of a comment, footer or some other undesirable node
    */
-  private val regExRemoveNodes = "^side$|combx|retweet|mediaarticlerelated|menucontainer|navbar|comment(?!ed)|PopularQuestions|contact|footer|Footer|footnote|cnn_strycaptiontxt|links|meta$|scroll(?!able)|shoutbox|sponsor" +
-    "|tags|socialnetworking|socialNetworking|cnnStryHghLght|cnn_stryspcvbx|^inset$|pagetools|post-attributes|welcome_form|contentTools2|the_answers|remember-tool-tip" +
-    "|communitypromo|promo_holder|runaroundLeft|subscribe|vcard|articleheadings|date|^print$|popup|author-dropdown|tools|socialtools|byline|konafilter|KonaFilter|breadcrumbs|^fn$" +
-    "|wp-caption-text|overlay"
+  private val regExRemoveNodes = "^side$|combx|retweet|mediaarticlerelated|menucontainer|"+
+  "navbar|storytopbar-bucket|utility-bar|inline-share-tools"+
+  "|comment|PopularQuestions|contact|foot|footer|Footer|footnote"+
+  "|cnn_strycaptiontxt|cnn_html_slideshow|cnn_strylftcntnt"+
+  "|links|meta$|shoutbox|sponsor"+
+  "|tags|socialnetworking|socialNetworking|cnnStryHghLght"+
+  "|cnn_stryspcvbx|^inset$|pagetools|post-attributes"+
+  "|welcome_form|contentTools2|the_answers"+
+  "|communitypromo|runaroundLeft|subscribe|vcard|articleheadings"+
+  "|date|^print$|popup|author-dropdown|tools|socialtools|byline"+
+  "|konafilter|KonaFilter|breadcrumbs|^fn$|wp-caption-text"+
+  "|legende|ajoutVideo|timestamp|js_replies"
   private val queryNaughtyIDs = "[id~=(" + regExRemoveNodes + ")]"
   private val queryNaughtyClasses = "[class~=(" + regExRemoveNodes + ")]"
   private val queryNaughtyNames = "[name~=(" + regExRemoveNodes + ")]"
@@ -74,8 +82,6 @@ private def removeNodesViaRegEx (pattern: Pattern) (implicit doc: Document): Uni
  */
 private def cleanUpSpanTagsInParagraphs (implicit doc: Document): Unit =
 byTag ("span").filter (_.parent.nodeName == "p").foreach {
-
-  import org.jsoup.nodes.Element
 
   node =>
   val tn = new TextNode (node.text, doc.baseUri)
