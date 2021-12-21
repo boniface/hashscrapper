@@ -19,7 +19,8 @@ object HashScrapper {
         .map(_.toDate)
         .orElse(canonicalLink.flatMap(extractDateFromURL))
       val rawTitle = extractTitle(doc)
-      val info = Article(title = rawTitle,
+      val info = Article(
+        title = rawTitle,
         processedTitle = processTitle(rawTitle, canonicalLink),
         metaDescription = extractMetaDescription(doc),
         metaKeywords = extractMetaKeywords(doc),
@@ -28,12 +29,12 @@ object HashScrapper {
         openGraphData = OpenGraphData(doc),
         publishDate = publishDate
       )
-
       val cleanedDoc = DocumentCleaner.clean(doc)
       calculateBestNodeBasedOnClustering(cleanedDoc, lang).map { node =>
         //some mutability beauty
-        postExtractionCleanup(node, lang)
-        info.copy(cleanedText = Some(node.text()), links = extractLinks(node))
+        val text = postExtractionCleanup(node, lang)
+        println(" THE DOC WE Want <p> ", text)
+        info.copy(cleanedText = Some(node.text), links = extractLinks(node))
       }.getOrElse(info)
     }
   }

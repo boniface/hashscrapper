@@ -130,9 +130,16 @@ object ContentExtractor {
   def calculateBestNodeBasedOnClustering(document: Document, lang:String): Option[Element] = {
     implicit val doc: Document = document.clone
 
-    val nodesToCheck = byTag("p") ++ byTag("td") ++ byTag("pre") ++ byTag("strong") ++ byTag("li") ++ byTag("code")
+    val nodesToCheck =
+      byTag("p") ++
+      byTag("td") ++
+      byTag("pre") ++
+      byTag("strong") ++
+      byTag("li") ++
+      byTag("code")
 
-    val nodesWithText = nodesToCheck.filter { node =>
+    val nodesWithText: Seq[Element] =
+      nodesToCheck.filter { node =>
       val nodeText = node.text
       val wordStats = StopWords.stopWordCount(nodeText, lang)
       val highLinkDensity = isHighLinkDensity(node)
@@ -167,11 +174,15 @@ object ContentExtractor {
     var startingBoost: Double = 1.0
     val parentNodes = mutable.Set.empty[Element]
 
+
+
     for (node <- nodesWithText) {
       val (newStartingBoost, boostScore) = boostScoreForNode(node, startingBoost, count)
       startingBoost = newStartingBoost
 
       logger.trace("Location Boost Score: " + boostScore + " on interation: " + count + " tag='"+ node.tagName +"' id='" + node.parent.id + "' class='" + node.parent.attr("class"))
+
+
 
       val wordStats: WordStats = StopWords.stopWordCount(node.text, lang)
       val upscore: Int = (wordStats.stopWordCount + boostScore).toInt
@@ -187,6 +198,7 @@ object ContentExtractor {
     if (parentNodes.isEmpty)
       None
     else {
+
       Some(parentNodes.maxBy(getScore)).filter(getScore(_) >= 20)
     }
   }
@@ -243,7 +255,8 @@ object ContentExtractor {
 
   private def getScore(node: Element): Int = getGravityScoreFromNode(node).getOrElse(0)
 
-  private def getGravityScoreFromNode(node: Element): Option[Int] = Try(node.attr("gravityScore").toInt).toOption
+  private def getGravityScoreFromNode(node: Element): Option[Int] =
+    Try(node.attr("gravityScore").toInt).toOption
 
   /**
   * adds a score to the gravityScore Attribute we put on divs
@@ -339,6 +352,7 @@ object ContentExtractor {
   }
 
   private def addSiblings(topNode: Element, lang: String): Element = {
+
     val baselineScoreForSiblingParagraphs = getBaselineScoreForSiblings(topNode, lang)
     val results = walkSiblings(topNode) { currentNode =>
       getSiblingContent(currentNode, baselineScoreForSiblingParagraphs, lang)

@@ -33,18 +33,21 @@ object DocumentCleaner {
 
   // FIX THIS FIRST
   def clean(doc: Document): Document = {
+
     //TODO right now this solution mutates this document
     // it would be very nice to implement this with an immutable solution
     implicit val docToClean: Document = doc.clone
 
-    cleanTextTags
-    removeScriptsAndStyles
-    cleanBadTags
-    removeNodesViaRegEx(captionPattern)
-    removeNodesViaRegEx(googlePattern)
-    removeNodesViaRegEx(facebookPattern)
-    removeNodesViaRegEx(twitterPattern)
-    cleanUpSpanTagsInParagraphs
+
+
+//    cleanTextTags
+//    removeScriptsAndStyles
+//    cleanBadTags
+//    removeNodesViaRegEx(captionPattern)
+//    removeNodesViaRegEx(googlePattern)
+//    removeNodesViaRegEx(facebookPattern)
+//    removeNodesViaRegEx(twitterPattern)
+//    cleanUpSpanTagsInParagraphs
     docToClean
   }
 
@@ -57,7 +60,7 @@ object DocumentCleaner {
       byTag("strike") ++ byTag("del") ++ byTag("ins")
 
     res.foreach { node =>
-      val tn = new TextNode(node.text, doc.baseUri)
+      val tn = new TextNode(doc.baseUri) // node.text
       node.replaceWith(tn)
     }
 
@@ -84,7 +87,7 @@ private def cleanUpSpanTagsInParagraphs (implicit doc: Document): Unit =
 byTag ("span").filter (_.parent.nodeName == "p").foreach {
 
   node =>
-  val tn = new TextNode (node.text, doc.baseUri)
+  val tn = new TextNode (doc.baseUri) // node.TEXT
   node.replaceWith (tn)
 }
 
